@@ -14,8 +14,6 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 training_dataloader = get_training_dataloader()
 test_dataloader = get_test_dataloader()
 
-n_epochs = 20
-
 def train_model(model, training_data, optimizer, epoch):
     model.train()
 
@@ -43,13 +41,16 @@ def train_model(model, training_data, optimizer, epoch):
 Train and test multilayer perceptron
 '''
 
-MLP = MultilayerPerceptron(device)
+n_epochs = 10
+# 10 epochs seems to be enough for Adam with an initial learning rate of 0.001. For SGD with the same learning rate,
+# more epochs are needed to converge >20
+
+MLP = MultilayerPerceptron(device).to(device) # must set device to GPU (cuda)
 # training_dataloader.to(device)
-# optimizer = optim.Adam(MLP.parameters(), lr=0.1)
-optimizer = optim.SGD(MLP.parameters(), lr=0.1)
-# SGD works much better for this MLP
-# learning rate of 0.1 seems to yield consistently highest accuracy on training data, however, learning rate of 0.001
-# may yield the highest accuracy if the number if iterations is sufficiently high (at least >20)
+optimizer = optim.Adam(MLP.parameters(), lr=0.001)
+# optimizer = optim.SGD(MLP.parameters(), lr=0.1)
+# Adam's adaptive learning rate seems to perform consistently slightly better than SGD in this scenario. However, the
+# performance of SGD is still very good.
 
 for epoch in range(n_epochs):
     print('Epoch: %s' % str(epoch + 1))
