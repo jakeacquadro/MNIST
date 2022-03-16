@@ -58,7 +58,7 @@ for epoch in range(n_epochs):
     train_model(epoch=epoch, model=MLP, training_data=training_dataloader, optimizer=optimizer)
     validate_model(dataloader=validation_dataloader, model=MLP)
 
-torch.save(MLP, 'multilayer_perceptron.pth')
+torch.save(MLP.state_dict(), 'multilayer_perceptron.pth')
 
 '''
 Train and validate convolutional neural network
@@ -80,4 +80,4 @@ for epoch in range(n_epochs):
     train_model(epoch=epoch, model=CNN, training_data=training_dataloader, optimizer=optimizer)
     validate_model(dataloader=validation_dataloader, model=CNN)
 
-torch.save(CNN, 'convolutional_neural_network.pth')
+torch.save(CNN.state_dict(), 'convolutional_neural_network.pth')
