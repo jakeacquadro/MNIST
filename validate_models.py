@@ -1,6 +1,6 @@
 import torch
 
-def test_model(dataloader, model):
+def validate_model(dataloader, model):
     device = model.device
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
@@ -16,4 +16,4 @@ def test_model(dataloader, model):
 
     test_loss /= num_batches
     correct /= size
-    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    print(f"Validation Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")

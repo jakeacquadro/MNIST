@@ -1,18 +1,19 @@
 from torch import optim
 from torch.autograd import Variable
+from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 import torch
 
-from evaluate_models import test_model
+from validate_models import validate_model
 from get_data import get_training_dataloader, get_test_dataloader
-from nn_models import MultilayerPerceptron
+from nn_models import MultilayerPerceptron, ConvolutionalNeuralNetwork
 import numpy as np
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-training_dataloader = get_training_dataloader()
-test_dataloader = get_test_dataloader()
+training_dataloader, validation_dataloader = get_training_dataloader()
+
 
 def train_model(model, training_data, optimizer, epoch):
     model.train()
@@ -38,7 +39,7 @@ def train_model(model, training_data, optimizer, epoch):
             # print('Batch accuracy: %s' % (str(100*torch.mean((classes == labels).float()).item()) + '%'))
 
 '''
-Train and test multilayer perceptron
+Train and validate multilayer perceptron
 '''
 
 n_epochs = 10
@@ -55,6 +56,28 @@ optimizer = optim.Adam(MLP.parameters(), lr=0.001)
 for epoch in range(n_epochs):
     print('Epoch: %s' % str(epoch + 1))
     train_model(epoch=epoch, model=MLP, training_data=training_dataloader, optimizer=optimizer)
-    test_model(dataloader=test_dataloader, model=MLP)
+    validate_model(dataloader=validation_dataloader, model=MLP)
 
 torch.save(MLP, 'multilayer_perceptron.pth')
+
+'''
+Train and validate convolutional neural network
+'''
+
+n_epochs = 10
+# 10 epochs seems to be enough for Adam with an initial learning rate of 0.001. For SGD with the same learning rate,
+# more epochs are needed to converge >20
+
+CNN = ConvolutionalNeuralNetwork(device).to(device) # must set device to GPU (cuda)
+# training_dataloader.to(device)
+optimizer = optim.Adam(CNN.parameters(), lr=0.001)
+# optimizer = optim.SGD(MLP.parameters(), lr=0.1)
+# Adam's adaptive learning rate seems to perform consistently slightly better than SGD in this scenario. However, the
+# performance of SGD is still very good.
+
+for epoch in range(n_epochs):
+    print('Epoch: %s' % str(epoch + 1))
+    train_model(epoch=epoch, model=CNN, training_data=training_dataloader, optimizer=optimizer)
+    validate_model(dataloader=validation_dataloader, model=CNN)
+
+torch.save(CNN, 'convolutional_neural_network.pth')
